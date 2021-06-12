@@ -1,17 +1,16 @@
-package com.github.utkarsh.grpc.greeting.server;
+package com.github.utkarsh.grpc.calculator.server;
 
-import com.github.utkarsh.grpc.calculator.server.CalculatorServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import java.io.IOException;
 
-public class GreetingServer {
+public class CalculatorServer {
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        System.out.println("Hello gRPC");
+    public static void main(String[] args) throws InterruptedException, IOException {
+        System.out.println("Calculator server");
 
         Server server = ServerBuilder.forPort(50051)
-            .addService(new GreetServiceImpl())
+            .addService(new CalculatorServiceImpl())
             .build();
 
         server.start();
