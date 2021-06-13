@@ -1,6 +1,8 @@
 package com.github.utkarsh.grpc.calculator.server;
 
 import com.proto.calculator.CalculatorServiceGrpc.CalculatorServiceImplBase;
+import com.proto.calculator.ComputeAverageRequest;
+import com.proto.calculator.ComputeAverageResponse;
 import com.proto.calculator.SumRequest;
 import com.proto.calculator.SumResponse;
 import io.grpc.stub.StreamObserver;
@@ -16,5 +18,34 @@ public class CalculatorServiceImpl extends CalculatorServiceImplBase {
 
         responseObserver.onNext(sumResponse);
         responseObserver.onCompleted();
+    }
+
+    @Override
+    public StreamObserver<ComputeAverageRequest> computeAverage(StreamObserver<ComputeAverageResponse> responseObserver) {
+        return new StreamObserver<>() {
+            int count = 0;
+            int sum = 0;
+
+            @Override
+            public void onNext(ComputeAverageRequest value) {
+                //stream of request incoming
+                count++;
+                sum += value.getNumber();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                //error from client
+            }
+
+            @Override
+            public void onCompleted() {
+                //return response when incoming request has completed
+                responseObserver.onNext(ComputeAverageResponse.newBuilder()
+                    .setResult(sum/count)
+                    .build());
+                responseObserver.onCompleted();
+            }
+        };
     }
 }
