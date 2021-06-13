@@ -1,5 +1,7 @@
 package com.github.utkarsh.grpc.greeting.server;
 
+import com.proto.greet.GreetManyTimesRequest;
+import com.proto.greet.GreetManyTimesResponse;
 import com.proto.greet.GreetRequest;
 import com.proto.greet.GreetResponse;
 import com.proto.greet.GreetServiceGrpc.GreetServiceImplBase;
@@ -24,5 +26,27 @@ public class GreetServiceImpl extends GreetServiceImplBase {
         responseObserver.onNext(greetResponse);
         //Complete the RPC call
         responseObserver.onCompleted();
+    }
+
+    @Override
+    public void greetManyTimes(GreetManyTimesRequest request, StreamObserver<GreetManyTimesResponse> responseObserver) {
+        String firstName = request.getGreeting().getFirstName();
+
+        try {
+            for (int i=0; i<10; i++) {
+                //Create the response
+                GreetManyTimesResponse greetResponse = GreetManyTimesResponse.newBuilder()
+                    .setResult("Hello, "+ firstName + " response no: " +i)
+                    .build();
+
+                //Send the response
+                responseObserver.onNext(greetResponse);
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            responseObserver.onCompleted();
+        }
     }
 }

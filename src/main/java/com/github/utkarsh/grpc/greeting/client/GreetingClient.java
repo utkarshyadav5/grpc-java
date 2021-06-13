@@ -1,5 +1,6 @@
 package com.github.utkarsh.grpc.greeting.client;
 
+import com.proto.greet.GreetManyTimesRequest;
 import com.proto.greet.GreetRequest;
 import com.proto.greet.GreetResponse;
 import com.proto.greet.GreetServiceGrpc;
@@ -23,15 +24,27 @@ public class GreetingClient {
         //Async Client
         //DummyServiceGrpc.DummyServiceFutureStub asyncClient = DummyServiceGrpc.newFutureStub(managedChannel);
 
+
         //create a greet service client
         GreetServiceGrpc.GreetServiceBlockingStub greetClient = GreetServiceGrpc.newBlockingStub(managedChannel);
-        //create  a proto buffer greet message
-        Greeting greeting = Greeting.newBuilder().setFirstName("Utkarsh").setLastName("Yadav").build();
+
+        // -------------------------- UNARY --------------------------
         // create the same for request
-        GreetRequest greetRequest = GreetRequest.newBuilder().setGreeting(greeting).build();
+        GreetRequest greetRequest = GreetRequest.newBuilder()
+            .setGreeting(Greeting.newBuilder().setFirstName("Utkarsh").setLastName("Yadav").build())
+            .build();
         //call the RPC and get back a GreetResponse
         GreetResponse greetResponse = greetClient.greet(greetRequest);
         System.out.println(greetResponse.getResult());
+
+        // -------------------------- SERVER STREAM --------------------------
+        // create the proto buffer request
+        GreetManyTimesRequest greetManyTimesRequest = GreetManyTimesRequest.newBuilder()
+            .setGreeting(Greeting.newBuilder().setFirstName("Utkarsh").setLastName("Yadav").build())
+            .build();
+        // call server stream and get stream of response
+        greetClient.greetManyTimes(greetManyTimesRequest)
+            .forEachRemaining(System.out::println);
 
         System.out.println("Shutting down channel");
         managedChannel.shutdown();
