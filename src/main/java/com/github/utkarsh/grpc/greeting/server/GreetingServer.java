@@ -1,6 +1,5 @@
 package com.github.utkarsh.grpc.greeting.server;
 
-import com.github.utkarsh.grpc.calculator.server.CalculatorServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import java.io.IOException;
