@@ -1,5 +1,7 @@
 package com.github.utkarsh.grpc.greeting.server;
 
+import com.proto.greet.GreetEveryoneRequest;
+import com.proto.greet.GreetEveryoneResponse;
 import com.proto.greet.GreetManyTimesRequest;
 import com.proto.greet.GreetManyTimesResponse;
 import com.proto.greet.GreetRequest;
@@ -76,6 +78,30 @@ public class GreetServiceImpl extends GreetServiceImplBase {
                         .setResult(result)
                         .build()
                 );
+                responseObserver.onCompleted();
+            }
+        };
+    }
+
+    @Override
+    public StreamObserver<GreetEveryoneRequest> greetEveryone(StreamObserver<GreetEveryoneResponse> responseObserver) {
+        return new StreamObserver<>() {
+            @Override
+            public void onNext(GreetEveryoneRequest value) {
+                String result = "Hello, "+ value.getGreeting().getFirstName() + "! ";
+                GreetEveryoneResponse response = GreetEveryoneResponse.newBuilder()
+                    .setResult(result)
+                    .build();
+                responseObserver.onNext(response);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                //client sends error
+            }
+
+            @Override
+            public void onCompleted() {
                 responseObserver.onCompleted();
             }
         };

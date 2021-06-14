@@ -1,5 +1,7 @@
 package com.github.utkarsh.grpc.greeting.client;
 
+import com.proto.greet.GreetEveryoneRequest;
+import com.proto.greet.GreetEveryoneResponse;
 import com.proto.greet.GreetManyTimesRequest;
 import com.proto.greet.GreetRequest;
 import com.proto.greet.GreetResponse;
@@ -10,6 +12,7 @@ import com.proto.greet.LongGreetResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +37,7 @@ public class GreetingClient {
         doUnaryCall();
         doServerStreamingCall();
         doClientStreamingCall();
+        doBiDirectionalStreamingCall();
 
         //Sync Client
         //DummyServiceGrpc.DummyServiceBlockingStub syncClient = DummyServiceGrpc.newBlockingStub(managedChannel);
@@ -114,6 +118,54 @@ public class GreetingClient {
         requestObserver.onNext(LongGreetRequest.newBuilder()
             .setGreeting(Greeting.newBuilder().setFirstName("Utkarsh 3").build())
             .build());
+
+        requestObserver.onCompleted();
+
+        //Why do we need latch here?
+        // If don't wait here then after sending request it won't wait for the response
+        // So basically this latch is waiting for the server onCompleted() to be called.
+        try {
+            latch.await(3L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void doBiDirectionalStreamingCall() {
+        //create a greet service client
+        GreetServiceGrpc.GreetServiceStub asyncClient = GreetServiceGrpc.newStub(managedChannel);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<GreetEveryoneRequest> requestObserver = asyncClient.greetEveryone(new StreamObserver<>() {
+            @Override
+            public void onNext(GreetEveryoneResponse value) {
+                System.out.println("Received response from server : "+ value.getResult());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                //server send error
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Server has sent the response completely");
+                latch.countDown();
+            }
+        });
+
+        Arrays.asList("Utkarsh 1", "Utkarsh 2", "Utkarsh 3").forEach(name -> {
+            System.out.println("Sending message :"+ name);
+            requestObserver.onNext(GreetEveryoneRequest.newBuilder()
+                .setGreeting(Greeting.newBuilder().setFirstName(name).build())
+                .build());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
 
         requestObserver.onCompleted();
 
