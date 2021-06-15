@@ -3,6 +3,8 @@ package com.github.utkarsh.grpc.calculator.client;
 import com.proto.calculator.CalculatorServiceGrpc;
 import com.proto.calculator.ComputeAverageRequest;
 import com.proto.calculator.ComputeAverageResponse;
+import com.proto.calculator.ComputeMaxRequest;
+import com.proto.calculator.ComputeMaxResponse;
 import com.proto.calculator.SumRequest;
 import com.proto.calculator.SumResponse;
 import io.grpc.ManagedChannel;
@@ -29,8 +31,9 @@ public class CalculatorClient {
     }
 
     private void run() {
-        doSumCall();
-        doAverageCall();
+//        doSumCall();
+//        doAverageCall();
+        doComputeMaximumCall();
 
         System.out.println("Shutting down Calculator client :");
         channel.shutdown();
@@ -77,6 +80,48 @@ public class CalculatorClient {
             System.out.println("Sending number :"+ i);
             requestObserver.onNext(ComputeAverageRequest.newBuilder()
                 .setNumber(i)
+                .build());
+        }
+
+        requestObserver.onCompleted();
+
+        try {
+            latch.await(3L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void doComputeMaximumCall() {
+        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc.newStub(channel);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<ComputeMaxRequest> requestObserver = asyncClient.computeMax(
+            new StreamObserver<>() {
+                @Override
+                public void onNext(ComputeMaxResponse value) {
+                    System.out.println("Maximum received from server: "+ value.getResult());
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    //server sends error
+                }
+
+                @Override
+                public void onCompleted() {
+                    //onCompleted() call from the server
+                    System.out.println("Server has sent the response completely");
+                    latch.countDown();
+                }
+            });
+
+        for (int i=0; i<10; i++) {
+            int randomNumber = (int) (Math.random()*100);
+            System.out.println("Sending number :"+ randomNumber);
+            requestObserver.onNext(ComputeMaxRequest.newBuilder()
+                .setNumber(randomNumber)
                 .build());
         }
 

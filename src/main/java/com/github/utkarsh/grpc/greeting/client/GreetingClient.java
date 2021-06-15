@@ -75,6 +75,7 @@ public class GreetingClient {
             .forEachRemaining(System.out::println);
     }
 
+    // -------------------------- CLIENT STREAM --------------------------
     private void doClientStreamingCall() {
         //create a greet service client
         GreetServiceGrpc.GreetServiceStub asyncClient = GreetServiceGrpc.newStub(managedChannel);
@@ -131,6 +132,7 @@ public class GreetingClient {
         }
     }
 
+    // -------------------------- BIDIRECTIONAL STREAM --------------------------
     private void doBiDirectionalStreamingCall() {
         //create a greet service client
         GreetServiceGrpc.GreetServiceStub asyncClient = GreetServiceGrpc.newStub(managedChannel);
