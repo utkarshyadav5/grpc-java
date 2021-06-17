@@ -30,10 +30,22 @@ message ComputeMaxResponse {
   int32 result = 1;
 }
 
+message SquareRootRequest {
+  int32 number = 1;
+}
+
+message SquareRootResponse {
+  double root = 1;
+}
+
 service CalculatorService {
   rpc Sum(SumRequest) returns (SumResponse) {};
 
   rpc ComputeAverage(stream ComputeAverageRequest) returns (ComputeAverageResponse) {};
 
   rpc ComputeMax(stream ComputeMaxRequest) returns (stream ComputeMaxResponse) {};
+
+  // error handling
+  // this RPC will throw an exception if the number is negative
+  rpc SquareRoot(SquareRootRequest) returns (SquareRootResponse) {};
 }

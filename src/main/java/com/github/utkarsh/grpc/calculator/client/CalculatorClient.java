@@ -5,10 +5,12 @@ import com.proto.calculator.ComputeAverageRequest;
 import com.proto.calculator.ComputeAverageResponse;
 import com.proto.calculator.ComputeMaxRequest;
 import com.proto.calculator.ComputeMaxResponse;
+import com.proto.calculator.SquareRootRequest;
 import com.proto.calculator.SumRequest;
 import com.proto.calculator.SumResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +35,8 @@ public class CalculatorClient {
     private void run() {
 //        doSumCall();
 //        doAverageCall();
-        doComputeMaximumCall();
+//        doComputeMaximumCall();
+        doErrorCall();
 
         System.out.println("Shutting down Calculator client :");
         channel.shutdown();
@@ -131,6 +134,20 @@ public class CalculatorClient {
             latch.await(3L, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    //
+    private void doErrorCall() {
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub blockingStub = CalculatorServiceGrpc.newBlockingStub(channel);
+
+        try {
+            blockingStub.squareRoot(SquareRootRequest.newBuilder()
+                .setNumber(-1)
+                .build());
+        } catch (StatusRuntimeException ex) {
+            System.out.println("Got an exception for square root!");
+            ex.printStackTrace();
         }
     }
 }

@@ -5,8 +5,12 @@ import com.proto.calculator.ComputeAverageRequest;
 import com.proto.calculator.ComputeAverageResponse;
 import com.proto.calculator.ComputeMaxRequest;
 import com.proto.calculator.ComputeMaxResponse;
+import com.proto.calculator.SquareRootRequest;
+import com.proto.calculator.SquareRootResponse;
 import com.proto.calculator.SumRequest;
 import com.proto.calculator.SumResponse;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 public class CalculatorServiceImpl extends CalculatorServiceImplBase {
@@ -72,5 +76,23 @@ public class CalculatorServiceImpl extends CalculatorServiceImplBase {
                 responseObserver.onCompleted();
             }
         };
+    }
+
+    @Override
+    public void squareRoot(SquareRootRequest request, StreamObserver<SquareRootResponse> responseObserver) {
+        Integer number = request.getNumber();
+
+        if(number >= 0) {
+            double root = Math.sqrt(number);
+            responseObserver.onNext(SquareRootResponse.newBuilder().setRoot(root).build());
+            responseObserver.onCompleted();
+        } else {
+            responseObserver.onError(
+                Status.INVALID_ARGUMENT
+                .withDescription("The number being sent is not positive")
+                .augmentDescription("Number sent: "+ number)
+                .asRuntimeException()
+            );
+        }
     }
 }
