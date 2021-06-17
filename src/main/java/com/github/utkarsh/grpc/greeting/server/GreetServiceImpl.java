@@ -7,6 +7,8 @@ import com.proto.greet.GreetManyTimesResponse;
 import com.proto.greet.GreetRequest;
 import com.proto.greet.GreetResponse;
 import com.proto.greet.GreetServiceGrpc.GreetServiceImplBase;
+import com.proto.greet.GreetWithDeadlineRequest;
+import com.proto.greet.GreetWithDeadlineResponse;
 import com.proto.greet.Greeting;
 import com.proto.greet.LongGreetRequest;
 import com.proto.greet.LongGreetResponse;
@@ -105,5 +107,21 @@ public class GreetServiceImpl extends GreetServiceImplBase {
                 responseObserver.onCompleted();
             }
         };
+    }
+
+    @Override
+    public void greetWithDeadline(GreetWithDeadlineRequest request, StreamObserver<GreetWithDeadlineResponse> responseObserver) {
+        try {
+            for (int i=0; i<3; i++) {
+                Thread.sleep(100);
+            }
+
+            responseObserver.onNext(GreetWithDeadlineResponse.newBuilder()
+                .setResult("Hello: "+ request.getGreeting().getFirstName())
+                .build());
+            responseObserver.onCompleted();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
     }
 }
