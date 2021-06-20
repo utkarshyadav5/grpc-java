@@ -29,6 +29,12 @@ public class GreetingClient {
         managedChannel = ManagedChannelBuilder.forAddress("localhost",50051)
             .usePlaintext()
             .build();
+
+        //server authentication SSL/TLS
+
+//        managedChannel = NettyChannelBuilder.forAddress("localhost",50051)
+//            .sslContext(GrpcSslContexts.forClient().trustManager(new File("ssl/ca.crt")).build())
+//            .build();
     }
 
     public static void main(String[] args) {
@@ -39,10 +45,10 @@ public class GreetingClient {
     }
 
     private void run() {
-//        doUnaryCall();
-//        doServerStreamingCall();
-//        doClientStreamingCall();
-//        doBiDirectionalStreamingCall();
+        doUnaryCall();
+        doServerStreamingCall();
+        doClientStreamingCall();
+        doBiDirectionalStreamingCall();
 
         doGreetWithDeadline();
 

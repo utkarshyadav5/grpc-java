@@ -11,6 +11,11 @@ public class GreetingServer {
 
         Server server = ServerBuilder.forPort(50051)
             .addService(new GreetServiceImpl())
+            //For SSL security
+            //.useTransportSecurity(
+            //    new File("ssl/server.crt"),
+            //    new File("ssl/server.pem")
+            //)
             .build();
 
         server.start();
